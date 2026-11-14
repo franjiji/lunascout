@@ -65,9 +65,16 @@ SOURCES_HORIZONS = ("JPL Horizons System (Solar System Dynamics Group, NASA JPL)
 BEARING_NAMES = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
 
 # Distinctive spots picked from the terrain itself (descriptive labels, NOT official names).
-# Filled per DEM in _curated_sites(); see ENGINE.md for how they were chosen.
+# They were chosen from the 50 m horizon grid using only geometry: 350 m mean slope, and the
+# fraction of azimuths where an idealized Sun (elevation = colatitude * cos(azimuth) + season)
+# clears the terrain horizon. See ENGINE.md, "Curated sites".
 CURATED_BY_SITE: dict[str, list[dict]] = {
-    "Site20v2": [],
+    "Site20v2": [
+        {"id": "summit_plateau", "name": "Summit plateau (high, flat, long sunlight)", "lat": -85.47628, "lon": 31.39691},
+        {"id": "western_bench", "name": "Western bench (flat, Earth in view)", "lat": -85.39890, "lon": 29.95361},
+        {"id": "crater_floor", "name": "Crater floor (shadowed)", "lat": -85.23787, "lon": 33.95403},
+        {"id": "sunlit_slope", "name": "Sunlit slope (steep)", "lat": -85.48962, "lon": 30.66935},
+    ],
 }
 
 

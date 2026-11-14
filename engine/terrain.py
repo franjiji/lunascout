@@ -118,7 +118,8 @@ class Terrain:
         lx, ly, lz = np.sin(az) * np.cos(alt), np.cos(az) * np.cos(alt), np.sin(alt)
         norm = np.sqrt(dzdx ** 2 + dzdy ** 2 + 1.0)
         shade = (-dzdx * lx - dzdy * ly + lz) / norm
-        shade = np.clip(shade, 0.0, 1.0)
+        lo, hi = np.percentile(shade, [1.0, 99.0])          # contrast stretch for display
+        shade = np.clip((shade - lo) / max(hi - lo, 1e-6), 0.0, 1.0)
         img = (255.0 * shade + 0.5).astype(np.uint8)
         out_png = Path(out_png)
         out_png.parent.mkdir(parents=True, exist_ok=True)
