@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LunaScout — Landing-site checker</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Semi+Condensed:wght@600;700&amp;display=swap">
+<style>
+body{margin:0;background:#000}
+a{color:#fff}a:hover{color:#f0f0fa}
+.ls-input{width:100%;box-sizing:border-box;height:44px;padding:12px 14px;background:#0a0a0a;color:#fff;border:1px solid #3a3a3f;border-radius:4px;font:400 16px/1.25 'Barlow',Arial,sans-serif;letter-spacing:0.32px;color-scheme:dark;outline:none}
+.ls-input:focus{border-color:#fff}
+.ls-ghost{cursor:pointer;transition:background .15s,color .15s}
+.ls-ghost:hover{background:#f0f0fa !important;color:#000 !important}
+.ls-site{cursor:pointer;transition:background .15s}
+.ls-site:hover{background:#141416 !important}
+.ls-site:focus-visible,.ls-ghost:focus-visible{outline:2px solid #fff;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #000000; color: #ffffff; font-family: 'Barlow', Arial, Verdana, sans-serif; font-size: 16px; line-height: 1.5; letter-spacing: 0.32px; display: flex; flex-direction: column">
+
+  <!-- Top nav -->
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 32px; border-bottom: 1px solid #3a3a3f">
+    <div style="display: flex; align-items: center; gap: 28px; flex-wrap: wrap">
+      <div style="font-family: 'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 6px; text-transform: uppercase; line-height: 1">LunaScout</div>
+      <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 2; color: #a0a0a8">Landing-site checker · Lunar south pole · MVP</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 2">
+      <span style="color: #a0a0a8">Last run · {{ranAt}}</span>
+      <span style="border: 1px solid #ffffff; border-radius: 32px; padding: 4px 14px; font-weight: 700; letter-spacing: 1.17px; line-height: 1.6">Sample data — not for mission use</span>
+    </div>
+  </header>
+
+  <!-- Body: settings · map · results -->
+  <main style="flex: 1 0 auto; display: flex; flex-wrap: wrap; align-items: stretch">
+
+    <!-- Settings panel -->
+    <aside style="flex: 1 1 260px; max-width: 100%; box-sizing: border-box; padding: 28px 24px 32px; border-right: 1px solid #3a3a3f; display: flex; flex-direction: column; gap: 24px; background: #0a0a0a">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 2; color: #a0a0a8">Step 01</div>
+        <h2 style="margin: 0; font-family: 'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 28px; line-height: 1.1; letter-spacing: 0.96px; text-transform: uppercase">Mission settings</h2>
+      </div>
+
+      <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 12px">
+        <legend style="padding: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 1.17px; text-transform: uppercase">Target</legend>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="ls-lat" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Latitude (°)</label>
+            <input id="ls-lat" class="ls-input" type="number" step="0.01" min="-90" max="-80" value="{{form.lat}}" onChange="{{onLat}}">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="ls-lon" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Longitude (°E)</label>
+            <input id="ls-lon" class="ls-input" type="number" step="0.01" min="-180" max="180" value="{{form.lon}}" onChange="{{onLon}}">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 12px">
+        <legend style="padding: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 1.17px; text-transform: uppercase">Timing</legend>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label for="ls-date" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Landing date &amp; time (UTC)</label>
+          <input id="ls-date" class="ls-input" type="datetime-local" value="{{form.date}}" onChange="{{onDate}}">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label for="ls-dur" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Mission duration (days)</label>
+          <input id="ls-dur" class="ls-input" type="number" step="0.5" min="1" max="30" value="{{form.days}}" onChange="{{onDays}}">
+        </div>
+      </fieldset>
+
+      <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 12px">
+        <legend style="padding: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 1.17px; text-transform: uppercase">Lander limits</legend>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label for="ls-rad" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Landing accuracy radius (m)</label>
+          <input id="ls-rad" class="ls-input" type="number" step="50" min="100" max="5000" value="{{form.radius}}" onChange="{{onRadius}}">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label for="ls-dark" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Max tolerable darkness (battery h)</label>
+          <input id="ls-dark" class="ls-input" type="number" step="1" min="0" max="400" value="{{form.maxDark}}" onChange="{{onDark}}">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label for="ls-earth" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Min Earth contact (h / day)</label>
+          <input id="ls-earth" class="ls-input" type="number" step="0.5" min="0" max="24" value="{{form.minEarth}}" onChange="{{onEarth}}">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <label for="ls-slope" style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">Max safe slope (°)</label>
+          <input id="ls-slope" class="ls-input" type="number" step="0.5" min="1" max="30" value="{{form.maxSlope}}" onChange="{{onSlope}}">
+        </div>
+      </fieldset>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 4px">
+        <button type="button" class="ls-ghost" onClick="{{onRun}}" style="appearance: none; background: transparent; color: #ffffff; border: 1px solid #ffffff; border-radius: 32px; padding: 18px 24px; font-family: 'Barlow', Arial, sans-serif; font-size: 13px; font-weight: 700; line-height: 0.94; letter-spacing: 1.17px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px">
+          <span>{{runLabel}}</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4"></path></svg>
+        </button>
+        <sc-if value="{{dirty}}" hint-placeholder-val="{{ false }}">
+          <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #ffb547; text-align: center">Settings changed — run to update</div>
+        </sc-if>
+        <sc-if value="{{showSiteNote}}" hint-placeholder-val="{{ false }}">
+          <div style="font-size: 13px; line-height: 1.5; color: #a0a0a8">{{siteNote}}</div>
+        </sc-if>
+      </div>
+    </aside>
+
+    <!-- Map -->
+    <section aria-label="Landing ellipse map" style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 32px; display: flex; flex-direction: column; gap: 18px">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+          <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 2; color: #a0a0a8">Step 02 · Landing ellipse · {{ellipseLabel}}</div>
+          <h1 style="margin: 0; font-family: 'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 48px; line-height: 1; letter-spacing: 0.96px; text-transform: uppercase">{{site.name}}</h1>
+          <div style="font-size: 16px; letter-spacing: 1.17px; text-transform: uppercase; color: #f0f0fa">{{coordLabel}}</div>
+        </div>
+        <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8; text-align: right">Polar stereographic view<br>{{viewLabel}}</div>
+      </div>
+
+      <!-- Map frame -->
+      <div style="position: relative; width: 100%; aspect-ratio: 3 / 2; overflow: hidden; background: #050505; border: 1px solid #3a3a3f; border-radius: 4px">
+        <!-- Terrain (hillshade-style sample render) -->
+        <svg style="position: absolute; inset: 0; width: 100%; height: 100%; display: block" viewBox="0 0 900 600" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <filter id="lsTerrain" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse">
+              <feTurbulence type="fractalNoise" baseFrequency="0.0065" numOctaves="6" seed="{{seed}}" result="noise"></feTurbulence>
+              <feDiffuseLighting in="noise" surfaceScale="11" diffuseConstant="1.05" result="lit">
+                <feDistantLight azimuth="{{sunAz}}" elevation="14"></feDistantLight>
+              </feDiffuseLighting>
+              <feColorMatrix in="lit" type="saturate" values="0"></feColorMatrix>
+            </filter>
+          </defs>
+          <rect x="0" y="0" width="900" height="600" filter="url(#lsTerrain)"></rect>
+        </svg>
+        <!-- Craters -->
+        <sc-for list="{{craters}}" as="c" hint-placeholder-count="10">
+          <div aria-hidden="true" style="position: absolute; left: {{c.left}}; top: {{c.top}}; width: {{c.size}}; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle at {{c.light}}, rgba(255,255,255,0.10) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.78) 64%, rgba(255,255,255,0.12) 70%, rgba(0,0,0,0) 74%)"></div>
+        </sc-for>
+        <!-- Grade the image darker so type and points land cleanly -->
+        <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(0,0,0,0.48)"></div>
+
+        <!-- km grid -->
+        <sc-if value="{{showGrid}}" hint-placeholder-val="{{ true }}">
+          <sc-for list="{{gridX}}" as="g" hint-placeholder-count="5">
+            <div aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: {{g.pos}}; width: 0; border-left: 1px solid rgba(255,255,255,0.12)">
+              <span style="position: absolute; bottom: 6px; left: 6px; font-size: 11px; letter-spacing: 0.96px; color: #c8c8d0; white-space: nowrap">{{g.label}}</span>
+            </div>
+          </sc-for>
+          <sc-for list="{{gridY}}" as="g" hint-placeholder-count="3">
+            <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: {{g.pos}}; height: 0; border-top: 1px solid rgba(255,255,255,0.12)">
+              <span style="position: absolute; top: 4px; left: 8px; font-size: 11px; letter-spacing: 0.96px; color: #c8c8d0; white-space: nowrap">{{g.label}}</span>
+            </div>
+          </sc-for>
+        </sc-if>
+
+        <!-- Landing ellipse -->
+        <div aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: {{ellipse.w}}; height: {{ellipse.h}}; transform: translate(-50%, -50%) rotate({{ellipse.rot}}); border: 1px dashed #ffffff; border-radius: 50%; background: rgba(255,255,255,0.05)"></div>
+
+        <!-- Sample points -->
+        <sc-for list="{{points}}" as="p" hint-placeholder-count="40">
+          <div title="{{p.tip}}" style="position: absolute; left: {{p.left}}; top: {{p.top}}; width: 12px; height: 12px; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center">
+            <sc-if value="{{p.isG}}" hint-placeholder-val="{{ true }}">
+              <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="#3ddc84" stroke="#000" stroke-width="1"></circle></svg>
+            </sc-if>
+            <sc-if value="{{p.isA}}" hint-placeholder-val="{{ false }}">
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 L11.2 10.6 H0.8 Z" fill="#ffb547" stroke="#000" stroke-width="1" stroke-linejoin="round"></path></svg>
+            </sc-if>
+            <sc-if value="{{p.isR}}" hint-placeholder-val="{{ false }}">
+              <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#000" stroke-width="4.4" stroke-linecap="round"></path><path d="M2 2 L10 10 M10 2 L2 10" stroke="#ff6b6b" stroke-width="2.4" stroke-linecap="round"></path></svg>
+            </sc-if>
+          </div>
+        </sc-for>
+
+        <!-- Target marker -->
+        <div style="position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%)">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none" role="img" aria-label="Target point">
+            <circle cx="22" cy="22" r="9" stroke="#000" stroke-width="4"></circle>
+            <circle cx="22" cy="22" r="9" stroke="#fff" stroke-width="1.8"></circle>
+            <path d="M22 2v11M22 31v11M2 22h11M31 22h11" stroke="#000" stroke-width="4"></path>
+            <path d="M22 2v11M22 31v11M2 22h11M31 22h11" stroke="#fff" stroke-width="1.8"></path>
+            <circle cx="22" cy="22" r="2" fill="#fff"></circle>
+          </svg>
+          <span style="position: absolute; left: 40px; top: -6px; font-size: 12px; font-weight: 700; letter-spacing: 1.17px; text-transform: uppercase; white-space: nowrap; background: #000; padding: 0 6px; line-height: 1.6">Target</span>
+        </div>
+
+        <!-- Top-left: north / pole arrow -->
+        <div style="position: absolute; top: 14px; left: 14px; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: rgba(10,10,10,0.88); border: 1px solid #3a3a3f; border-radius: 4px; font-size: 11px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.5">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5" aria-hidden="true" style="transform: rotate({{sunRot}})"><path d="M8 14V2M3.5 6.5 8 2l4.5 4.5"></path></svg>
+            <span>Sun az {{site.sunAz}}° · el {{site.sunEl}}°</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="2 2" aria-hidden="true" style="transform: rotate({{earthRot}})"><path d="M8 14V2M3.5 6.5 8 2l4.5 4.5"></path></svg>
+            <span>Earth az {{site.earthAz}}° · el {{site.earthEl}}°</span>
+          </div>
+          <div style="color: #a0a0a8">At landing · sample</div>
+        </div>
+
+        <!-- Bottom-right: scale bar -->
+        <div style="position: absolute; right: 14px; bottom: 14px; width: {{scaleW}}; padding: 10px 12px; background: rgba(10,10,10,0.88); border: 1px solid #3a3a3f; border-radius: 4px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; font-size: 11px; letter-spacing: 0.96px; text-transform: uppercase">
+          <div style="width: 100%; box-sizing: border-box; height: 6px; border: 1px solid #fff; border-top: 0"></div>
+          <span>{{scaleLabel}}</span>
+        </div>
+
+        <!-- Top-right: sample tag -->
+        <div style="position: absolute; top: 14px; right: 14px; padding: 4px 12px; border: 1px solid #ffffff; border-radius: 32px; background: rgba(0,0,0,0.7); font-size: 11px; font-weight: 700; letter-spacing: 1.17px; text-transform: uppercase; line-height: 1.6">Sample terrain render</div>
+      </div>
+
+      <!-- Legend -->
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; font-size: 13px; letter-spacing: 0.32px">
+        <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; color: #a0a0a8">Legend</div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="#3ddc84"></circle></svg>
+          <span><strong style="font-weight: 700">Viable</strong> · slope ≤ {{slopeGood}}°, clear of hazards</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 L11.2 10.6 H0.8 Z" fill="#ffb547" stroke-linejoin="round"></path></svg>
+          <span><strong style="font-weight: 700">Risky</strong> · slope {{slopeGood}}–{{applied.maxSlope}}°</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#ff6b6b" stroke-width="2.4" stroke-linecap="round"></path></svg>
+          <span><strong style="font-weight: 700">Not viable</strong> · slope &gt; {{applied.maxSlope}}° or boulder field</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span aria-hidden="true" style="display: inline-block; width: 22px; height: 12px; border: 1px dashed #fff; border-radius: 50%"></span>
+          <span>Landing ellipse</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <svg width="16" height="16" viewBox="0 0 44 44" fill="none" stroke="#fff" stroke-width="3" aria-hidden="true"><circle cx="22" cy="22" r="9"></circle><path d="M22 2v11M22 31v11M2 22h11M31 22h11"></path></svg>
+          <span>Target</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results + recommendations -->
+    <aside style="flex: 1 1 360px; max-width: 100%; box-sizing: border-box; border-left: 1px solid #3a3a3f; padding: 28px 28px 32px; display: flex; flex-direction: column; gap: 28px; background: #0a0a0a">
+
+      <section aria-label="Analysis results" style="display: flex; flex-direction: column; gap: 20px">
+        <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 2; color: #a0a0a8">Step 03 · Results</div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 13px; font-weight: 700; letter-spacing: 1.17px; text-transform: uppercase">Survival probability</div>
+          <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap">
+            <div style="font-family: 'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 80px; line-height: 0.95; letter-spacing: 1.6px">{{survival}}%</div>
+            <div style="font-size: 13px; line-height: 1.5; color: #a0a0a8">of points inside<br>the ellipse are viable</div>
+          </div>
+          <!-- Distribution bar -->
+          <div aria-hidden="true" style="display: flex; height: 8px; width: 100%; gap: 2px; margin-top: 8px">
+            <div style="width: {{bar.g}}; background: #3ddc84"></div>
+            <div style="width: {{bar.a}}; background: repeating-linear-gradient(135deg, #ffb547 0 3px, #8a5f1c 3px 5px)"></div>
+            <div style="width: {{bar.r}}; background: repeating-linear-gradient(90deg, #ff6b6b 0 2px, #000 2px 4px)"></div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: #f0f0fa">
+            <span>{{counts.g}} viable</span><span>{{counts.a}} risky</span><span>{{counts.r}} not viable</span><span style="color: #a0a0a8">of {{counts.total}} sample points</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; border-top: 1px solid #3a3a3f">
+          <sc-for list="{{metrics}}" as="m" hint-placeholder-count="6">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #3a3a3f">
+              <div style="display: flex; flex-direction: column; min-width: 0">
+                <span style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 1.6; color: #a0a0a8">{{m.label}}</span>
+                <span style="font-family: 'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 22px; line-height: 1.2; letter-spacing: 0.6px; text-transform: uppercase">{{m.value}}</span>
+                <span style="font-size: 12px; line-height: 1.5; color: #a0a0a8">{{m.ref}}</span>
+              </div>
+              <sc-if value="{{m.pass}}" hint-placeholder-val="{{ true }}">
+                <span style="flex: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #3ddc84; color: #3ddc84; border-radius: 32px; padding: 6px 12px; font-size: 12px; font-weight: 700; letter-spacing: 1.17px; line-height: 1">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5 5 9.2 10 3"></path></svg>PASS
+                </span>
+              </sc-if>
+              <sc-if value="{{m.fail}}" hint-placeholder-val="{{ false }}">
+                <span style="flex: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #ff6b6b; color: #ff6b6b; border-radius: 32px; padding: 6px 12px; font-size: 12px; font-weight: 700; letter-spacing: 1.17px; line-height: 1">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"></path></svg>FAIL
+                </span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size: 13px; color: #f0f0fa">{{passSummary}}</div>
+      </section>
+
+      <section aria-label="Recommended nearby sites" style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; line-height: 2; color: #a0a0a8">Step 04</div>
+          <h2 style="margin: 0; font-family: 'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 28px; line-height: 1.1; letter-spacing: 0.96px; text-transform: uppercase">Recommended nearby</h2>
+          <div style="font-size: 13px; color: #a0a0a8">Higher survival probability within 10 km. Select to recenter the map.</div>
+        </div>
+        <div style="display: flex; flex-direction: column; border-top: 1px solid #3a3a3f">
+          <sc-for list="{{recs}}" as="r" hint-placeholder-count="3">
+            <button type="button" class="ls-site" onClick="{{r.pick}}" aria-label="{{r.aria}}" style="appearance: none; background: transparent; color: #ffffff; border: 0; border-bottom: 1px solid #3a3a3f; padding: 14px 4px; text-align: left; font-family: 'Barlow', Arial, sans-serif; display: flex; align-items: center; gap: 14px; width: 100%">
+              <span style="font-family: 'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; letter-spacing: 0.96px; min-width: 64px">{{r.prob}}%</span>
+              <span style="display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0">
+                <span style="font-size: 14px; font-weight: 700; letter-spacing: 1.17px; text-transform: uppercase; line-height: 1.4">{{r.name}}</span>
+                <span style="font-size: 12px; letter-spacing: 0.32px; color: #a0a0a8; line-height: 1.5">{{r.coords}} · {{r.dist}} · {{r.delta}}</span>
+              </span>
+              <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="flex: none"><path d="M2 7h10M8 3l4 4-4 4"></path></svg>
+            </button>
+          </sc-for>
+          <sc-if value="{{noRecs}}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 16px 0; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; border-bottom: 1px solid #3a3a3f">
+              <div style="font-size: 14px; color: #f0f0fa">This is the best site in range of the sample set.</div>
+              <button type="button" class="ls-ghost" onClick="{{onReset}}" style="appearance: none; background: transparent; color: #ffffff; border: 1px solid #ffffff; border-radius: 32px; padding: 14px 20px; font-family: 'Barlow', Arial, sans-serif; font-size: 13px; font-weight: 700; line-height: 0.94; letter-spacing: 1.17px; text-transform: uppercase">Back to Target A</button>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Footer -->
+  <footer style="border-top: 1px solid #3a3a3f; padding: 20px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-size: 13px; line-height: 1.5; color: #a0a0a8">
+    <div><span style="font-size: 12px; letter-spacing: 0.96px; text-transform: uppercase; color: #ffffff">Data sources</span> · JPL Horizons (Sun &amp; Earth ephemerides) · LRO LOLA topography (NASA Goddard PGDA)</div>
+    <div>All values on this screen are sample data for design purposes · LunaScout MVP</div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"showGrid":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":1140}}'>
+var LS_SITES = [
+  { id: 'A', name: 'Target A — Ridge Saddle', lat: -89.45, lon: -137.90, rough: 0.355, ang: -22, sunFrac: 0.72, dark: 41, earth: 9.8, sunset: 78, earthset: 30, sunAz: 214, sunEl: 1.4, earthAz: 352, earthEl: 4.8 },
+  { id: 'B', name: 'Site B — North Crest', lat: -89.40, lon: -132.50, rough: 0.26, ang: -15, sunFrac: 0.90, dark: 16, earth: 13.1, sunset: 214, earthset: 61, sunAz: 209, sunEl: 2.1, earthAz: 349, earthEl: 5.6 },
+  { id: 'C', name: 'Site C — West Plateau', lat: -89.48, lon: -144.20, rough: 0.23, ang: -30, sunFrac: 0.86, dark: 22, earth: 12.4, sunset: 190, earthset: 44, sunAz: 220, sunEl: 1.8, earthAz: 355, earthEl: 5.1 },
+  { id: 'D', name: 'Site D — Inner Bench', lat: -89.38, lon: -141.80, rough: 0.25, ang: -10, sunFrac: 0.81, dark: 29, earth: 12.9, sunset: 172, earthset: 38, sunAz: 216, sunEl: 1.6, earthAz: 351, earthEl: 5.3 },
+  { id: 'E', name: 'Site E — Rim Shoulder', lat: -89.52, lon: -131.00, rough: 0.46, ang: -25, sunFrac: 0.66, dark: 52, earth: 8.7, sunset: 60, earthset: 20, sunAz: 208, sunEl: 1.1, earthAz: 347, earthEl: 4.2 }
+];
+var LS_DEFAULT = { lat: '-89.45', lon: '-137.90', date: '2027-11-08T14:00', days: '7', radius: '1000', maxDark: '50', minEarth: '12', maxSlope: '8' };
+
+function lsHash(i, j, s) { var h = Math.sin(i * 127.1 + j * 311.7 + s * 74.7) * 43758.5453; return h - Math.floor(h); }
+function lsXY(lat, lon) { var r = (90 + lat) * 30.34; var t = lon * Math.PI / 180; return { x: r * Math.sin(t), y: r * Math.cos(t) }; }
+function lsDist(a, b) { var p = lsXY(a.lat, a.lon), q = lsXY(b.lat, b.lon); return Math.hypot(p.x - q.x, p.y - q.y); }
+function lsNum(v, d) { var n = parseFloat(v); return isFinite(n) ? n : d; }
+function lsPoints(site, R, maxSlope) {
+  var a = R, b = R * 0.6, step = Math.sqrt(Math.PI * a * b / 110), s = site.id.charCodeAt(0);
+  var th = site.ang * Math.PI / 180, out = [];
+  for (var u = -a + step / 2; u <= a; u += step) {
+    for (var v = -b + step / 2; v <= b; v += step) {
+      if ((u / a) * (u / a) + (v / b) * (v / b) > 1) continue;
+      var x = u * Math.cos(th) - v * Math.sin(th), y = u * Math.sin(th) + v * Math.cos(th);
+      var f = 0.5 + 0.32 * Math.sin(x / (R * 0.42) + s) * Math.cos(y / (R * 0.5) + s * 0.7) + 0.16 * Math.sin((x - y) / (R * 0.27) + s * 1.3) + 0.14 * (lsHash(Math.round(u / step), Math.round(v / step), s) - 0.5);
+      f = Math.min(1, Math.max(0, f));
+      var slope = 1 + (2 + 16 * site.rough) * f * 1.1 + 3 * site.rough;
+      var boulder = lsHash(Math.round(v / step), Math.round(u / step), s + 9) < 0.04;
+      var k = (boulder || slope > maxSlope) ? 'r' : (slope > maxSlope * 0.8 ? 'a' : 'g');
+      out.push({ x: x, y: y, slope: slope, boulder: boulder, k: k });
+    }
+  }
+  return out;
+}
+function lsHours(h) { var d = Math.floor(h / 24), r = Math.round(h - d * 24); return d > 0 ? d + ' d ' + r + ' h' : r + ' h'; }
+function lsLat(v) { return Math.abs(v).toFixed(3) + '° ' + (v < 0 ? 'S' : 'N'); }
+function lsLon(v) { return Math.abs(v).toFixed(3) + '° ' + (v < 0 ? 'W' : 'E'); }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { form: Object.assign({}, LS_DEFAULT), applied: Object.assign({}, LS_DEFAULT), running: false, ranAt: '2027-11-08 · 13:52 UTC' };
+  }
+  componentWillUnmount() { if (this._t) clearTimeout(this._t); }
+  setField(key, val) { var f = Object.assign({}, this.state.form); f[key] = val; this.setState({ form: f }); }
+  goTo(site) {
+    var lat = site.lat.toFixed(2), lon = site.lon.toFixed(2);
+    this.setState({ form: Object.assign({}, this.state.form, { lat: lat, lon: lon }), applied: Object.assign({}, this.state.applied, { lat: lat, lon: lon }) });
+  }
+  renderVals() {
+    var self = this, st = this.state, ap = st.applied;
+    var lat = lsNum(ap.lat, -89.45), lon = lsNum(ap.lon, -137.9);
+    var R = Math.max(100, lsNum(ap.radius, 1000)), maxSlope = Math.max(1, lsNum(ap.maxSlope, 8));
+    var days = Math.max(0.5, lsNum(ap.days, 7)), missionH = days * 24;
+    var maxDark = lsNum(ap.maxDark, 50), minEarth = lsNum(ap.minEarth, 12);
+    var here = { lat: lat, lon: lon };
+
+    var site = LS_SITES[0], best = Infinity;
+    LS_SITES.forEach(function (s) { var d = lsDist(here, s); if (d < best) { best = d; site = s; } });
+
+    var W = Math.max(5000, R * 5), H = W * 2 / 3;
+    var pts = lsPoints(site, R, maxSlope);
+    var counts = { g: 0, a: 0, r: 0, total: pts.length }, steep = 0;
+    var points = pts.map(function (p) {
+      counts[p.k]++; if (p.slope > maxSlope) steep++;
+      var cls = p.k === 'g' ? 'Viable' : p.k === 'a' ? 'Risky' : 'Not viable';
+      return { left: (50 + p.x / W * 100).toFixed(2) + '%', top: (50 - p.y / H * 100).toFixed(2) + '%', isG: p.k === 'g', isA: p.k === 'a', isR: p.k === 'r', tip: cls + ' · slope ' + p.slope.toFixed(1) + '°' + (p.boulder ? ' · boulder field' : '') };
+    });
+    var survival = Math.round(100 * counts.g / Math.max(1, counts.total));
+    var steepPct = Math.round(100 * steep / Math.max(1, counts.total));
+
+    var sunH = site.sunFrac * missionH;
+    var metrics = [
+      { label: 'Hours of sunlight', value: Math.round(sunH) + ' h / ' + Math.round(missionH) + ' h', ref: 'Ref ≥ 60% of mission', pass: site.sunFrac >= 0.6 },
+      { label: 'Longest darkness period', value: site.dark + ' h', ref: 'Limit ≤ ' + maxDark + ' h battery', pass: site.dark <= maxDark },
+      { label: 'Earth visible', value: site.earth.toFixed(1) + ' h / day', ref: 'Min ' + minEarth + ' h / day', pass: site.earth >= minEarth },
+      { label: 'Time until sunset', value: lsHours(site.sunset), ref: 'Must exceed mission (' + lsHours(missionH) + ')', pass: site.sunset > missionH },
+      { label: 'Time until Earthset', value: lsHours(site.earthset), ref: 'Ref ≥ 24 h commissioning window', pass: site.earthset >= 24 },
+      { label: 'Area over max slope', value: steepPct + '% > ' + maxSlope + '°', ref: 'Ref ≤ 20% of ellipse', pass: steepPct <= 20 }
+    ].map(function (m) { m.fail = !m.pass; return m; });
+    var passN = metrics.filter(function (m) { return m.pass; }).length;
+
+    var probOf = function (s) { var p = lsPoints(s, R, maxSlope); var g = p.filter(function (q) { return q.k === 'g'; }).length; return Math.round(100 * g / Math.max(1, p.length)); };
+    var recs = LS_SITES.filter(function (s) { return s !== site; }).map(function (s) {
+      var pr = probOf(s), d = lsDist(here, s);
+      return { s: s, prob: pr, d: d };
+    }).filter(function (o) { return o.prob > survival && o.d <= 10; }).sort(function (x, y) { return y.prob - x.prob; }).map(function (o) {
+      return { name: o.s.name, prob: o.prob, coords: lsLat(o.s.lat) + ' · ' + lsLon(o.s.lon), dist: o.d.toFixed(1) + ' km away', delta: '+' + (o.prob - survival) + ' pts', aria: 'Recenter on ' + o.s.name + ', ' + o.prob + '% survival probability', pick: function () { self.goTo(o.s); } };
+    });
+
+    var gridX = [], gridY = [];
+    for (var gx = -Math.floor(W / 2000) * 1000; gx <= W / 2; gx += 1000) { if (gx !== 0) gridX.push({ pos: (50 + gx / W * 100).toFixed(2) + '%', label: (gx > 0 ? '+' : '−') + Math.abs(gx / 1000) + ' km' }); }
+    for (var gy = -Math.floor(H / 2000) * 1000; gy <= H / 2; gy += 1000) { if (gy !== 0) gridY.push({ pos: (50 - gy / H * 100).toFixed(2) + '%', label: (gy > 0 ? '+' : '−') + Math.abs(gy / 1000) + ' km' }); }
+
+    var cs = site.id.charCodeAt(0), craters = [];
+    for (var i = 0; i < 14; i++) {
+      var sz = 2 + lsHash(i, 3, cs) * (i < 3 ? 14 : 6);
+      craters.push({ left: (lsHash(i, 1, cs) * 100).toFixed(1) + '%', top: (lsHash(i, 2, cs) * 100).toFixed(1) + '%', size: sz.toFixed(1) + '%', light: '30% 30%' });
+    }
+
+    var scaleM = W >= 10000 ? 2000 : 1000;
+    var dirty = JSON.stringify(st.form) !== JSON.stringify(ap);
+
+    return {
+      showGrid: this.props.showGrid ?? true,
+      form: st.form, applied: { maxSlope: maxSlope },
+      site: site, seed: cs * 7 + Math.round(Math.abs(lon) * 10) % 97,
+      sunAz: site.sunAz, sunRot: site.sunAz + 'deg', earthRot: site.earthAz + 'deg',
+      coordLabel: lsLat(lat) + ' · ' + lsLon(lon) + ' · ' + ap.date.replace('T', ' ') + ' UTC',
+      ellipseLabel: (R * 2).toLocaleString('en-US') + ' × ' + Math.round(R * 1.2).toLocaleString('en-US') + ' m · ' + counts.total + ' sample points',
+      viewLabel: (W / 1000).toFixed(1) + ' × ' + (H / 1000).toFixed(1) + ' km window',
+      ellipse: { w: (2 * R / W * 100).toFixed(2) + '%', h: (1.2 * R / H * 100).toFixed(2) + '%', rot: (-site.ang) + 'deg' },
+      points: points, craters: craters, gridX: gridX, gridY: gridY,
+      scaleW: (scaleM / W * 100).toFixed(2) + '%', scaleLabel: (scaleM / 1000) + ' km',
+      slopeGood: (maxSlope * 0.8).toFixed(1).replace(/\.0$/, ''),
+      survival: survival, counts: counts,
+      bar: { g: (counts.g / counts.total * 100).toFixed(1) + '%', a: (counts.a / counts.total * 100).toFixed(1) + '%', r: (counts.r / counts.total * 100).toFixed(1) + '%' },
+      metrics: metrics, passSummary: passN + ' of 6 checks pass against your settings.',
+      recs: recs, noRecs: recs.length === 0,
+      dirty: dirty && !st.running, runLabel: st.running ? 'Analyzing…' : 'Run analysis', ranAt: st.ranAt,
+      showSiteNote: best > 3, siteNote: 'Entered coordinates are ' + best.toFixed(1) + ' km from the nearest sample site; showing ' + site.name + ' values.',
+      onLat: function (e) { self.setField('lat', e.target.value); },
+      onLon: function (e) { self.setField('lon', e.target.value); },
+      onDate: function (e) { self.setField('date', e.target.value); },
+      onDays: function (e) { self.setField('days', e.target.value); },
+      onRadius: function (e) { self.setField('radius', e.target.value); },
+      onDark: function (e) { self.setField('maxDark', e.target.value); },
+      onEarth: function (e) { self.setField('minEarth', e.target.value); },
+      onSlope: function (e) { self.setField('maxSlope', e.target.value); },
+      onRun: function () {
+        if (self.state.running) return;
+        self.setState({ running: true });
+        self._t = setTimeout(function () {
+          var n = new Date();
+          var pad = function (x) { return (x < 10 ? '0' : '') + x; };
+          self.setState({ running: false, applied: Object.assign({}, self.state.form), ranAt: 'Today · ' + pad(n.getUTCHours()) + ':' + pad(n.getUTCMinutes()) + ' UTC' });
+        }, 700);
+      },
+      onReset: function () { self.goTo(LS_SITES[0]); }
+    };
+  }
+}
+</script>
+</body>
+</html>

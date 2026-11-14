@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+npm-debug.log*
+dist/
+.firebase/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Large data (never commit raw DEMs)
+data/raw/*
+!data/raw/.gitkeep
+*.tif
+*.tiff
+!fixtures/*.tif
+!engine/tests/data/*.tif
