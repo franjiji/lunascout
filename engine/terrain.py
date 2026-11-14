@@ -89,6 +89,12 @@ class Terrain:
         return float(np.hypot(dx, dy))
 
     # ------------------------------------------------------------------ hillshade
+    def hillshade_bounds(self, max_px: int = 2048) -> list[float]:
+        """[x_min, y_min, x_max, y_max] of the hillshade image written by make_hillshade()."""
+        f = max(1, int(np.ceil(max(self.ny, self.nx) / float(max_px))))
+        ny, nx = (self.ny // f) * f, (self.nx // f) * f
+        return [self.x_min, self.y_max - ny * self.pixel_m, self.x_min + nx * self.pixel_m, self.y_max]
+
     def make_hillshade(self, out_png, max_px: int = 2048, azimuth_deg: float = 315.0,
                        altitude_deg: float = 45.0, z_factor: float = 1.0):
         """Write a grayscale hillshade PNG and return its bounds [x_min, y_min, x_max, y_max].
@@ -117,7 +123,7 @@ class Terrain:
         out_png = Path(out_png)
         out_png.parent.mkdir(parents=True, exist_ok=True)
         Image.fromarray(img, mode="L").save(out_png, optimize=True)
-        return [self.x_min, self.y_max - ny * self.pixel_m, self.x_min + nx * self.pixel_m, self.y_max]
+        return self.hillshade_bounds(max_px)
 
 
 # --------------------------------------------------------------------------- loading
