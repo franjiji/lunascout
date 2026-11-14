@@ -24,7 +24,11 @@ def main() -> int:
     result = analyze({"target": {"lat": site["lat"], "lon": site["lon"]}})
     real_ephemeris = not result["is_sample"]
     result["is_sample"] = True
-    note = "Sample data — saved example of a real analysis, shown because the API is offline."
+    if real_ephemeris:
+        note = "Sample data — saved example of a real analysis, shown because the API is offline."
+    else:
+        note = ("Sample data — saved example: real LOLA terrain, but SYNTHETIC Sun/Earth positions "
+                "(development stub; the real JPL Horizons ephemeris is not integrated yet).")
     if note not in result["warnings"]:
         result["warnings"].insert(0, note)
     OUT.write_text(json.dumps(result, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")

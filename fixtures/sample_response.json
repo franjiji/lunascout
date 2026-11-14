@@ -1,8 +1,8 @@
 {
  "schema_version": "1.0",
  "is_sample": true,
- "computed_utc": "2026-11-14T20:10:50Z",
- "compute_ms": 312,
+ "computed_utc": "2026-11-14T21:05:29Z",
+ "compute_ms": 288,
  "inputs": {
   "target": {
    "lat": -85.47628,
@@ -9536,7 +9536,7 @@
   ]
  },
  "warnings": [
-  "Sample data — saved example of a real analysis, shown because the API is offline.",
+  "Sample data — saved example: real LOLA terrain, but SYNTHETIC Sun/Earth positions (development stub; the real JPL Horizons ephemeris is not integrated yet).",
   "SYNTHETIC EPHEMERIS (development stub): Sun and Earth positions are NOT real. Do not use these results.",
   "Horizon is modeled only out to the DEM edge (11.4–19.9 km from the target, depending on direction); more distant peaks may block additional sunlight or Earth visibility.",
   "Large ellipse: sampled every 71 m (384 of 755 grid nodes).",
